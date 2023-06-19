@@ -131,10 +131,10 @@ export const handleRecordList: Handler = ({ redash }) => {
 
     const cols: Record<string, string> = {}
     for (const { friendly_name } of result.columns) {
-      const dashes = '-'.repeat(friendly_name.length)
-      cols[friendly_name] = `${friendly_name}\n${dashes}`
+      cols[friendly_name] = friendly_name
     }
-    const table = new Table([cols].concat(rows))
+    const headerTable = new Table(cols)
+    const table = new Table(rows)
     let tableMessage = table.toString()
     tableMessage = tableMessage
       .split('\n')
@@ -143,6 +143,24 @@ export const handleRecordList: Handler = ({ redash }) => {
     await client.chat.postMessage({
       text: `${query.name}\n${tableMessage}`,
       channel: message.channel,
+      "blocks": [
+        {
+          "type": "header",
+          "text": {
+            "type": "plain_text",
+            "text": headerTable.toString(),
+          }
+        },
+        {
+          "type": "section",
+          "fields": [
+            {
+              "type": "mrkdwn",
+              "text": tableMessage
+            }
+          ]
+        },
+      ],
     })
   }
 }
