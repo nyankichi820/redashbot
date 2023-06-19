@@ -136,10 +136,12 @@ export const handleRecordList: Handler = ({ redash }) => {
     const headerTable = new Table(cols)
     const table = new Table(rows)
     let tableMessage = table.toString()
-    tableMessage = tableMessage
+    const fields = tableMessage
       .split('\n')
-      .map((line) => "- " + line.trimRight())
-      .join('\n')
+      .map((line) => {
+        return { "type": "mrkdwn", "text": "- " + line.trimRight() }
+      })
+
     await client.chat.postMessage({
       text: `${query.name}\n${tableMessage}`,
       channel: message.channel,
@@ -153,12 +155,7 @@ export const handleRecordList: Handler = ({ redash }) => {
         },
         {
           "type": "section",
-          "fields": [
-            {
-              "type": "mrkdwn",
-              "text": tableMessage
-            }
-          ]
+          "fields": fields,
         },
       ],
     })
