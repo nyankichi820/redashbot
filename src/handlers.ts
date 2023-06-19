@@ -136,28 +136,26 @@ export const handleRecordList: Handler = ({ redash }) => {
     const headerTable = new Table(cols)
     const table = new Table(rows)
     let tableMessage = table.toString()
-    const fields = tableMessage
+    const blocks = [{
+      "type": "header",
+      "text": {
+        "type": "plain_text",
+        "text": headerTable.toString(),
+      }
+    }].concat(tableMessage
       .split('\n')
       .map((line) => {
-        return { "type": "mrkdwn", "text": "- " + line.trimRight() }
+        return {
+          "type": "section",
+          "fields": [{ "type": "mrkdwn", "text": "- " + line.trimRight() }]
+        }
       })
+    )
 
     await client.chat.postMessage({
       text: `${query.name}\n${tableMessage}`,
       channel: message.channel,
-      "blocks": [
-        {
-          "type": "header",
-          "text": {
-            "type": "plain_text",
-            "text": headerTable.toString(),
-          }
-        },
-        {
-          "type": "section",
-          "fields": fields,
-        },
-      ],
+      "blocks": blocks,
     })
   }
 }
