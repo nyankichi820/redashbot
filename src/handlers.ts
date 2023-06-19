@@ -105,11 +105,38 @@ export const handleRecordTable: Handler = ({ redash }) => {
     let tableMessage = '```' + table.toString() + '```'
     tableMessage = tableMessage
       .split('\n')
-      .map((line) => line.trimRight())
+      .map((line) =>  line.trimRight())
       .join('\n')
     await client.chat.postMessage({
       text: `${query.name}\n${tableMessage}`,
       channel: message.channel,
+    })
+  }
+}
+
+export const handleRecordPivot: Handler = ({ redash }) => {
+  return async ({ context, client, message }) => {
+    const [originalUrl, queryId]: string[] = context.matches
+    const query = await redash.getQuery(queryId)
+    const result = (await redash.getQueryResult(queryId)).query_result.data
+
+    const attachments: { title: string; value: string; short?: boolean | undefined; }[] = []
+    result.rows.forEach((row) => {
+      for (const { friendly_name, name } of result.columns) {
+	      attachments.push({
+		      "title": friendly_name,
+		      "value": row[name],
+		      "short": true,
+	      })
+      }
+    })
+
+    await client.chat.postMessage({
+      channel: message.channel,
+        attachments: [{
+      	title: query.name,
+	      fields: attachments,
+      }],
     })
   }
 }
