@@ -8,6 +8,7 @@ import {
   handleRecordDashboardLegacy,
   handleRecordTable,
   handleRecordPivot,
+  handleRecordList,
 } from './handlers'
 import { mention } from './middleware'
 import { Redash } from './redash'
@@ -18,6 +19,7 @@ const handlers: [path: string, handler: Handler][] = [
   [`/dashboards/(\\d+)-([^?/|>]+)`, handleRecordDashboard],
   [`/queries/([0-9]+)#table`, handleRecordTable],
   [`/queries/([0-9]+)#pivot`, handleRecordPivot],
+  [`/queries/([0-9]+)#list`, handleRecordList],
   [`/queries/([0-9]+)>?$`, handleRecordTable],
 ]
 

@@ -105,7 +105,40 @@ export const handleRecordTable: Handler = ({ redash }) => {
     let tableMessage = '```' + table.toString() + '```'
     tableMessage = tableMessage
       .split('\n')
-      .map((line) =>  line.trimRight())
+      .map((line) => line.trimRight())
+      .join('\n')
+    await client.chat.postMessage({
+      text: `${query.name}\n${tableMessage}`,
+      channel: message.channel,
+    })
+  }
+}
+
+
+export const handleRecordList: Handler = ({ redash }) => {
+  return async ({ context, client, message }) => {
+    const [originalUrl, queryId]: string[] = context.matches
+    const query = await redash.getQuery(queryId)
+    const result = (await redash.getQueryResult(queryId)).query_result.data
+
+    const rows = result.rows.map((row) => {
+      const converted: Record<string, any> = {}
+      for (const { friendly_name, name } of result.columns) {
+        converted[friendly_name] = row[name]
+      }
+      return converted
+    })
+
+    const cols: Record<string, string> = {}
+    for (const { friendly_name } of result.columns) {
+      const dashes = '-'.repeat(friendly_name.length)
+      cols[friendly_name] = `${friendly_name}\n${dashes}`
+    }
+    const table = new Table([cols].concat(rows))
+    let tableMessage = '```' + table.toString() + '```'
+    tableMessage = tableMessage
+      .split('\n')
+      .map((line) => "- " + line.trimRight())
       .join('\n')
     await client.chat.postMessage({
       text: `${query.name}\n${tableMessage}`,
@@ -123,19 +156,19 @@ export const handleRecordPivot: Handler = ({ redash }) => {
     const attachments: { title: string; value: string; short?: boolean | undefined; }[] = []
     result.rows.forEach((row) => {
       for (const { friendly_name, name } of result.columns) {
-	      attachments.push({
-		      "title": friendly_name,
-		      "value": row[name],
-		      "short": true,
-	      })
+        attachments.push({
+          "title": friendly_name,
+          "value": row[name],
+          "short": true,
+        })
       }
     })
 
     await client.chat.postMessage({
       channel: message.channel,
-        attachments: [{
-      	title: query.name,
-	      fields: attachments,
+      attachments: [{
+        title: query.name,
+        fields: attachments,
       }],
     })
   }
