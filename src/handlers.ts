@@ -135,7 +135,7 @@ export const handleRecordList: Handler = ({ redash }) => {
       cols[friendly_name] = `${friendly_name}\n${dashes}`
     }
     const table = new Table([cols].concat(rows))
-    let tableMessage = '```' + table.toString() + '```'
+    let tableMessage = table.toString()
     tableMessage = tableMessage
       .split('\n')
       .map((line) => "- " + line.trimRight())
