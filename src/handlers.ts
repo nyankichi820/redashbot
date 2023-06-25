@@ -172,7 +172,7 @@ export const handleRecordPivot: Handler = ({ redash }) => {
         attachments.push({
           "title": friendly_name,
           "value": row[name],
-          "short": true,
+          "short": row[name].length < 50,,
         })
       }
     })
